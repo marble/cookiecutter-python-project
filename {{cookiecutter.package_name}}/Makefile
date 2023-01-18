@@ -18,10 +18,13 @@ help:
 # help: venv                           - create a virtual environment for development
 .PHONY: venv
 venv:
-	@rm -Rf venv
-	@python3 -m venv venv --prompt {{cookiecutter.package_name}}
-	@/bin/bash -c "source venv/bin/activate && pip install pip --upgrade && pip install -r requirements.dev.txt && pip install -e ."
-	@echo "Enter virtual environment using:\n\n\t$ source venv/bin/activate\n"
+	@# rm -Rf .venv
+	@python3 -m venv .venv --prompt {{cookiecutter.package_name}}
+	@/bin/bash -c "source .venv/bin/activate && pip install pip --upgrade"
+	@/bin/bash -c "source .venv/bin/activate && pip install -r requirements.txt"
+	@/bin/bash -c "source .venv/bin/activate && pip install -r requirements.dev.txt"
+	@/bin/bash -c "source .venv/bin/activate && pip install -e ."
+	@echo "Enter virtual environment using:\n\n\t$ source .venv/bin/activate\n"
 
 
 # help: clean                          - clean all files using .gitignore rules
@@ -143,6 +146,29 @@ dist-test: dist
 .PHONY: dist-upload
 dist-upload:
 	@twine upload dist/{{cookiecutter.package_name}}-*-py3-none-any.whl
+
+
+# help: poetry-init                    - create basic pyproject.toml if missing
+.PHONY: poetry-init
+poetry-init:
+	poetry init \
+	--name="{{cookiecutter.package_display_name}}" \
+	--description="{{cookiecutter.package_short_description}}" \
+	--author='{{cookiecutter.full_name}} <{{cookiecutter.email}}>' \
+	--license="{{cookiecutter.license}}" \
+	--no-interaction
+
+# help: poetry-venv                    - create and set up .venv with poetry
+.PHONY: poetry-venv
+poetry-venv: poetry-init
+	@#rm -Rf .venv
+	@python3 -m venv .venv --prompt {{cookiecutter.package_name}}
+	@/bin/bash -c "source .venv/bin/activate && pip install pip --upgrade"
+	@/bin/bash -c "source .venv/bin/activate && cat requirements.txt | grep -v '#' | xargs --no-run-if-empty poetry add"
+	@/bin/bash -c "source .venv/bin/activate && cat requirements.dev.txt | grep -v '#' | xargs --no-run-if-empty poetry add --group dev"
+	@# /bin/bash -c "source .venv/bin/activate && pip install -e ."
+	@echo "Enter virtual environment using:\n\n\t$ source .venv/bin/activate\n"
+	@echo "Consider:\n\n\t$ pip install -e .\n"
 
 
 # Keep these lines at the end of the file to retain nice help
