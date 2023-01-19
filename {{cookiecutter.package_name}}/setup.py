@@ -26,7 +26,7 @@ with open('CHANGELOG.rst', 'r') as f:
     changes = f.read()
 
 def parse_requirements(filename):
-    ''' Load requirements from a pip requirements file '''
+    """Load requirements from a pip requirements file."""
     with open(filename, 'r') as fd:
         lines = []
         for line in fd:
@@ -55,9 +55,18 @@ if __name__ == '__main__':
         package_dir={'': 'src'},
         packages=find_packages('src'),
         zip_safe=False,
+        entry_points={
+            'console_scripts': [
+                '{{cookiecutter.package_name}} = {{cookiecutter.package_name}}.__main__:main',
+            ]
+        },
         classifiers=['Development Status :: 3 - Alpha',
                      'Intended Audience :: Developers',
                      'Programming Language :: Python :: 3.6',
                      'Programming Language :: Python :: 3.7',
-                     'Programming Language :: Python :: 3.8']
+                     'Programming Language :: Python :: 3.8',
+                     'Programming Language :: Python :: 3.9',
+                     'Programming Language :: Python :: 3.10',
+                     'Programming Language :: Python :: 3.11',
+                     ]
     )
